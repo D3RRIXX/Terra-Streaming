@@ -45,7 +45,14 @@ namespace TerraStreaming.Editor
 			if (GUILayout.Button("Generate Scenes"))
 			{
 				GenerateScenes();
+				ClearRefs();
 			}
+		}
+
+		private void ClearRefs()
+		{
+			_groupingSettings.Parents.Clear();
+			_groupingSettings.IndividualObjects.Clear();
 		}
 
 		private void GenerateScenes()
@@ -53,25 +60,37 @@ namespace TerraStreaming.Editor
 			Scene activeScene = SceneManager.GetActiveScene();
 			string targetPath = SceneUtils.GetOrCreateFolder(activeScene.GetParentFolder(), activeScene.name);
 
-			var children = _groupingSettings.Parents.SelectMany(GroupChildrenByChunks);
-			var objects = GroupObjectsByChunks(_groupingSettings.IndividualObjects);
-			
-			var parent = _groupingSettings.Parents[0];
-			foreach ((Vector2Int coords, Transform chunkParent) in GroupChildrenByChunks(parent))
+			foreach ((Vector2Int coords, List<Transform> transforms) in GetAllObjectsToSort(_groupingSettings))
 			{
 				string sceneName = $"{activeScene.name}_{coords}";
+				Debug.Log($"Opening {sceneName}");
 				using OpenSceneScope sceneScope = SceneUtils.GetOrCreateScene($"{targetPath}/{sceneName}.unity", closeOnDispose: false);
-				MoveObjectToScene(chunkParent, sceneScope.Scene);
+
+				foreach (Transform chunkParent in transforms)
+				{
+					MoveObjectToScene(chunkParent, sceneScope.Scene);
+				}
 			}
 
 			EditorSceneManager.MarkSceneDirty(activeScene);
 			SceneManager.SetActiveScene(activeScene);
 		}
 
+		private IEnumerable<(Vector2Int Key, List<Transform>)> GetAllObjectsToSort(ObjectGroupingSettings groupingSettings)
+		{
+			IEnumerable<IGrouping<Vector2Int, Transform>> objects = GroupObjectsByChunks(groupingSettings.IndividualObjects);
+			IEnumerable<IGrouping<Vector2Int, Transform>> parents = groupingSettings.Parents
+			                                                                        .SelectMany(GroupChildrenByChunks)
+			                                                                        .GroupBy(x => x.Item1, x => x.Item2);
+
+			return objects.Join(parents, grouping => grouping.Key, grouping => grouping.Key,
+				(grouping1, grouping2) => (grouping1.Key, new List<Transform>(grouping1.Concat(grouping2))));
+		}
+
 		private static void MoveObjectToScene(Transform transform, in Scene scene)
 		{
 			const string actionName = "Terra (Move GameObject to scene)";
-			
+
 			Undo.SetCurrentGroupName(actionName);
 			Undo.SetTransformParent(transform, newParent: null, actionName);
 			Undo.MoveGameObjectToScene(transform.gameObject, scene, actionName);
@@ -80,7 +99,7 @@ namespace TerraStreaming.Editor
 		private IEnumerable<(Vector2Int, Transform)> GroupChildrenByChunks(Transform parent)
 		{
 			var objects = parent.GetComponentsInChildren<Transform>().Skip(1);
-			foreach (IGrouping<Vector2Int,Transform> grouping in objects.GroupBy(x => WorldPosToCoords(_gridSettings, x.position)))
+			foreach (IGrouping<Vector2Int, Transform> grouping in objects.GroupBy(x => WorldPosToCoords(_gridSettings, x.position)))
 			{
 				Transform chunkParent = new GameObject(parent.name).transform;
 				foreach (Transform child in grouping)
@@ -90,15 +109,13 @@ namespace TerraStreaming.Editor
 
 				yield return (grouping.Key, chunkParent);
 			}
+
+			Undo.DestroyObjectImmediate(parent.gameObject);
 		}
 
 		private IEnumerable<IGrouping<Vector2Int, Transform>> GroupObjectsByChunks(IEnumerable<Transform> transforms)
 		{
-			return
-				from t in transforms
-				group t by WorldPosToCoords(_gridSettings, t.position)
-				into grouping
-				select grouping;
+			return transforms.GroupBy(t => WorldPosToCoords(_gridSettings, t.position));
 		}
 
 		private void OnSceneGUI(SceneView obj)
