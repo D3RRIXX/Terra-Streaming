@@ -17,8 +17,8 @@ namespace TerraStreaming.Editor
 			window.Show();
 		}
 
-		[SerializeField] private GridSettings _gridSettings = new();
-		[SerializeField] private Transform _parent;
+		[SerializeField] private GridSettings _gridSettings;
+		[SerializeField] private ObjectGroupingSettings _groupingSettings;
 
 		private SerializedObject _serializedObject;
 		private SerializedObject SerializedObject => _serializedObject ??= new SerializedObject(this);
@@ -39,7 +39,7 @@ namespace TerraStreaming.Editor
 
 			serializedObject.Update();
 			EditorGUILayout.PropertyField(serializedObject.FindProperty("_gridSettings"));
-			EditorGUILayout.PropertyField(serializedObject.FindProperty("_parent"));
+			EditorGUILayout.PropertyField(serializedObject.FindProperty("_groupingSettings"));
 			serializedObject.ApplyModifiedProperties();
 
 			if (GUILayout.Button("Generate Scenes"))
@@ -53,27 +53,52 @@ namespace TerraStreaming.Editor
 			Scene activeScene = SceneManager.GetActiveScene();
 			string targetPath = SceneUtils.GetOrCreateFolder(activeScene.GetParentFolder(), activeScene.name);
 
+			var children = _groupingSettings.Parents.SelectMany(GroupChildrenByChunks);
+			var objects = GroupObjectsByChunks(_groupingSettings.IndividualObjects);
 			
-			var groups = GroupObjectsByChunks(_parent);
-			
-			foreach (IGrouping<Vector2Int, GameObject> group in groups)
+			var parent = _groupingSettings.Parents[0];
+			foreach ((Vector2Int coords, Transform chunkParent) in GroupChildrenByChunks(parent))
 			{
-				Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
-				scene.name = $"Scene {group.Key}";
-					
-				foreach (GameObject gameObject in group)
+				string sceneName = $"{activeScene.name}_{coords}";
+				using OpenSceneScope sceneScope = SceneUtils.GetOrCreateScene($"{targetPath}/{sceneName}.unity", closeOnDispose: false);
+				MoveObjectToScene(chunkParent, sceneScope.Scene);
+			}
+
+			EditorSceneManager.MarkSceneDirty(activeScene);
+			SceneManager.SetActiveScene(activeScene);
+		}
+
+		private static void MoveObjectToScene(Transform transform, in Scene scene)
+		{
+			const string actionName = "Terra (Move GameObject to scene)";
+			
+			Undo.SetCurrentGroupName(actionName);
+			Undo.SetTransformParent(transform, newParent: null, actionName);
+			Undo.MoveGameObjectToScene(transform.gameObject, scene, actionName);
+		}
+
+		private IEnumerable<(Vector2Int, Transform)> GroupChildrenByChunks(Transform parent)
+		{
+			var objects = parent.GetComponentsInChildren<Transform>().Skip(1);
+			foreach (IGrouping<Vector2Int,Transform> grouping in objects.GroupBy(x => WorldPosToCoords(_gridSettings, x.position)))
+			{
+				Transform chunkParent = new GameObject(parent.name).transform;
+				foreach (Transform child in grouping)
 				{
-					gameObject.transform.SetParent(null);
-					SceneManager.MoveGameObjectToScene(gameObject, scene);
+					child.SetParent(chunkParent, true);
 				}
+
+				yield return (grouping.Key, chunkParent);
 			}
 		}
 
-		private IEnumerable<IGrouping<Vector2Int, GameObject>> GroupObjectsByChunks(Transform parent)
+		private IEnumerable<IGrouping<Vector2Int, Transform>> GroupObjectsByChunks(IEnumerable<Transform> transforms)
 		{
-			var objects = parent.GetComponentsInChildren<Transform>().Skip(1);
-
-			return objects.Select(x => x.gameObject).GroupBy(x => WorldPosToCoords(_gridSettings, x.transform.position));
+			return
+				from t in transforms
+				group t by WorldPosToCoords(_gridSettings, t.position)
+				into grouping
+				select grouping;
 		}
 
 		private void OnSceneGUI(SceneView obj)

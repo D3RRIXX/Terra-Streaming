@@ -30,10 +30,10 @@ namespace TerraStreaming.Editor
 
 		public static bool AssetExists(string path) => AssetDatabase.LoadMainAssetAtPath(path) != null;
 
-		public static OpenSceneScope GetOrCreateScene(string scenePath, OpenSceneMode openSceneMode = OpenSceneMode.Additive)
+		public static OpenSceneScope GetOrCreateScene(string scenePath, bool closeOnDispose, OpenSceneMode openSceneMode = OpenSceneMode.Additive)
 		{
 			if (AssetExists(scenePath))
-				return OpenSceneScope.Existing(scenePath, openSceneMode);
+				return OpenSceneScope.Existing(scenePath, closeOnDispose, openSceneMode);
 
 			var newSceneMode = openSceneMode switch
 			{
@@ -42,29 +42,7 @@ namespace TerraStreaming.Editor
 				_ => throw new ArgumentOutOfRangeException(nameof(openSceneMode), openSceneMode, null)
 			};
 			
-			return OpenSceneScope.New(newSceneMode);
-		}
-	}
-
-	public class OpenSceneScope : IDisposable
-	{
-		public static OpenSceneScope Existing(string scenePath, OpenSceneMode openSceneMode = OpenSceneMode.Additive) 
-			=> new(EditorSceneManager.OpenScene(scenePath, openSceneMode));
-
-		public static OpenSceneScope New(NewSceneMode newSceneMode = NewSceneMode.Additive) 
-			=> new(EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, newSceneMode));
-
-		private OpenSceneScope(in Scene scene)
-		{
-			Scene = scene;
-		}
-
-		public Scene Scene { get; }
-
-		public void Dispose()
-		{
-			EditorSceneManager.SaveScene(Scene);
-			EditorSceneManager.CloseScene(Scene, false);
+			return OpenSceneScope.New(scenePath, closeOnDispose, newSceneMode);
 		}
 	}
 }

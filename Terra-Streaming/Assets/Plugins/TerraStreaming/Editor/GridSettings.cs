@@ -3,7 +3,7 @@
 namespace TerraStreaming.Editor
 {
 	[System.Serializable]
-	public class GridSettings
+	public struct GridSettings
 	{
 		public float CellSize;
 		public Vector2Int GridSize;
