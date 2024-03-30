@@ -1,6 +1,9 @@
 using UnityEditor;
 
-public class RectDrawer : PropertyDrawer
+namespace TerraStreaming.Editor
 {
+	public class RectDrawer : PropertyDrawer
+	{
 
+	}
 }

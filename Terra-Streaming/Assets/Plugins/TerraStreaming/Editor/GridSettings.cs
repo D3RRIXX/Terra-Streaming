@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace TerraStreaming.Editor.Plugins.TerraStreaming.Editor
+namespace TerraStreaming.Editor
 {
 	[System.Serializable]
 	public class GridSettings
