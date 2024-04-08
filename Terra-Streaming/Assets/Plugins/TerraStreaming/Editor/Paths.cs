@@ -1,4 +1,4 @@
-﻿namespace TerraStreamer.Editor
+﻿namespace TerraStreaming
 {
 	public static class Paths
 	{

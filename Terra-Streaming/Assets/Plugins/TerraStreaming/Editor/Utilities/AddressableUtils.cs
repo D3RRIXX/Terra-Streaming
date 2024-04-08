@@ -4,7 +4,7 @@ using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 
-namespace TerraStreamer.Editor.Utilities
+namespace TerraStreaming.Utilities
 {
 	public static class AddressableUtils
 	{

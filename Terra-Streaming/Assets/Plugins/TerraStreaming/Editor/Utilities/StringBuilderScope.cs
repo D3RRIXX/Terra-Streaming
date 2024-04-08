@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace TerraStreamer.Editor.Utilities
+namespace TerraStreaming.Utilities
 {
 	public struct StringBuilderScope : IDisposable
 	{

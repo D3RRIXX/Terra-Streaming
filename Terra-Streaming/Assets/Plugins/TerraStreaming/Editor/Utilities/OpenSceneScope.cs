@@ -2,7 +2,7 @@
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 
-namespace TerraStreaming.Editor
+namespace TerraStreaming.Utilities
 {
 	public class OpenSceneScope : IDisposable
 	{

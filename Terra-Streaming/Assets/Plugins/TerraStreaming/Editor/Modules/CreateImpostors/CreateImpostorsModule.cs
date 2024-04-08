@@ -1,16 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using TerraStreamer.Data;
-using TerraStreamer.Editor.Utilities;
-using TerraStreaming.Editor;
+using TerraStreaming.Data;
+using TerraStreaming.MarkerComponents;
+using TerraStreaming.Utilities;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 
-namespace TerraStreamer._Terrain_Tests_.Scripts.TerraStreamer.Editor.Modules
+namespace TerraStreaming.Modules.CreateImpostors
 {
 	public class CreateImpostorsModule : TerraModuleBase
 	{

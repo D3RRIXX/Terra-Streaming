@@ -1,4 +1,4 @@
-﻿namespace TerraStreamer
+﻿namespace TerraStreaming
 {
 	public enum ChunkState
 	{

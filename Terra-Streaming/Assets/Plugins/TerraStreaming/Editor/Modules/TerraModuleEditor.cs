@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace TerraStreamer._Terrain_Tests_.Scripts.TerraStreamer.Editor.Modules
+namespace TerraStreaming.Modules
 {
 	public abstract class TerraModuleEditor<T> : UnityEditor.Editor where T : ScriptableObject
 	{

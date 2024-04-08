@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace TerraStreaming.Editor
+namespace TerraStreaming.Modules.CreateLocationData
 {
 	[System.Serializable]
 	public class ObjectGroupingSettings

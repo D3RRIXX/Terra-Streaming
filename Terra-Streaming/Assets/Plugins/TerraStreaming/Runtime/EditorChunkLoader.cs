@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using TerraStreamer.Data;
+using TerraStreaming.Data;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace TerraStreamer
+namespace TerraStreaming
 {
 	[ExecuteInEditMode]
 	public class EditorChunkLoader : MonoBehaviour

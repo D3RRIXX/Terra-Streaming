@@ -1,11 +1,10 @@
-﻿using TerraStreamer;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace ChunkLoadSystem
+namespace TerraStreaming
 {
 	[BurstCompile]
 	public struct GetChunkLoadStateJob : IJobParallelFor
@@ -15,7 +14,7 @@ namespace ChunkLoadSystem
 		[ReadOnly] private readonly float _impostorLoadDistance;
 		[ReadOnly] private readonly float _regularLoadDistance;
 	
-		[WriteOnly] private NativeArray<ChunkState> _outputArray;
+		private NativeArray<ChunkState> _outputArray;
 
 		public GetChunkLoadStateJob(Vector3 playerPos, NativeArray<Bounds> boundsArray, float impostorLoadDistance,
 			float regularLoadDistance, NativeArray<ChunkState> outputArray)
@@ -35,11 +34,17 @@ namespace ChunkLoadSystem
 			float distance = math.distance(closestPoint, _playerPos);
 
 			if (distance <= _regularLoadDistance)
-				_outputArray[index] = ChunkState.Regular;
+				AssignIfGreater(index, ChunkState.Regular);
 			else if (distance <= _impostorLoadDistance)
-				_outputArray[index] = ChunkState.Impostor;
+				AssignIfGreater(index, ChunkState.Impostor);
 			else
-				_outputArray[index] = ChunkState.None;
+				AssignIfGreater(index, ChunkState.None);
+		}
+
+		private void AssignIfGreater(int index, ChunkState newState)
+		{
+			if (newState > _outputArray[index])
+				_outputArray[index] = newState;
 		}
 	}
 }

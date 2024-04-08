@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
-using TerraStreamer.Editor.Utilities;
-using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEngine.SceneManagement;
 
-namespace TerraStreaming.Editor
+namespace TerraStreaming.Utilities
 {
 	public static class SceneUtils
 	{

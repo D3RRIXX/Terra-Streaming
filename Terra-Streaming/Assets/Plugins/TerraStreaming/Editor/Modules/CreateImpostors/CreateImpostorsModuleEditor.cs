@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace TerraStreamer._Terrain_Tests_.Scripts.TerraStreamer.Editor.Modules
+namespace TerraStreaming.Modules.CreateImpostors
 {
 	[CustomEditor(typeof(CreateImpostorsModule))]
 	public class CreateImpostorsModuleEditor : TerraModuleEditor<CreateImpostorsModule>

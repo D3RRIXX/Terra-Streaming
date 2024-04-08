@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace TerraStreamer
+namespace TerraStreaming.MarkerComponents
 {
 	public class ImpostorObjectMarker : MonoBehaviour
 	{

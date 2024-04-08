@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using TerraStreaming.Editor;
 using UnityEngine;
 
-namespace TerraStreamer.Data
+namespace TerraStreaming.Data
 {
 	[CreateAssetMenu(fileName = "New World Data", menuName = "Terra/World Data")]
 	public class WorldData : ScriptableObject

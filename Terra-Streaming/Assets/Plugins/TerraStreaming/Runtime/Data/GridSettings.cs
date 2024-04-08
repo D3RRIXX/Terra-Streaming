@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace TerraStreaming.Editor
+namespace TerraStreaming.Data
 {
 	[System.Serializable]
 	public struct GridSettings

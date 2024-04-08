@@ -4,7 +4,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace TerraStreamer.Data
+namespace TerraStreaming.Data
 {
 	[Serializable]
 	public class ChunkData

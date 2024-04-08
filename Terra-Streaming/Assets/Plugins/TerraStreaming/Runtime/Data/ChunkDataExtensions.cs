@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using TerraStreamer.Data;
 
-namespace TerraStreaming
+namespace TerraStreaming.Data
 {
 	public static class ChunkDataExtensions
 	{

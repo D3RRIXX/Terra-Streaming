@@ -1,13 +1,10 @@
-﻿using System;
-using System.Linq;
-using TerraStreamer.Data;
-using TerraStreamer.Editor.Utilities;
-using TerraStreaming.Editor;
+﻿using System.Linq;
+using TerraStreaming.Data;
+using TerraStreaming.Utilities;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-namespace TerraStreamer._Terrain_Tests_.Scripts.TerraStreamer.Editor.Modules
+namespace TerraStreaming.Modules.SplitTerrain
 {
 	public class TerrainSplitterModule : TerraModuleBase
 	{

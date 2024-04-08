@@ -1,8 +1,8 @@
 {
-    "name": "TerraStreamer.Editor",
-    "rootNamespace": "TerraStreamer",
+    "name": "TerraStreaming.Editor",
+    "rootNamespace": "TerraStreaming",
     "references": [
-        "TerraStreamer",
+        "TerraStreaming",
         "Unity.Addressables",
         "Unity.Addressables.Editor",
         "Unity.ResourceManager"

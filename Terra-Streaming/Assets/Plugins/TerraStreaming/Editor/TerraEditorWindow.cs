@@ -1,9 +1,12 @@
 ﻿using System.Linq;
-using TerraStreamer._Terrain_Tests_.Scripts.TerraStreamer.Editor.Modules;
+using TerraStreaming.Modules;
+using TerraStreaming.Modules.CreateImpostors;
+using TerraStreaming.Modules.CreateLocationData;
+using TerraStreaming.Modules.SplitTerrain;
 using UnityEditor;
 using UnityEngine;
 
-namespace TerraStreamer.Editor
+namespace TerraStreaming
 {
 	public class TerraEditorWindow : EditorWindow
 	{

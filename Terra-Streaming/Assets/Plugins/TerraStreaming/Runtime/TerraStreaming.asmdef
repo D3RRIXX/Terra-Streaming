@@ -1,6 +1,6 @@
 {
-    "name": "TerraStreamer",
-    "rootNamespace": "TerraStreamer",
+    "name": "TerraStreaming",
+    "rootNamespace": "TerraStreaming",
     "references": [
         "Unity.Addressables",
         "Unity.ResourceManager",

@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using TerraStreamer.Data;
+using TerraStreaming.Data;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 
-namespace TerraStreamer
+namespace TerraStreaming
 {
-	public class ChunkLoader : MonoBehaviour
+	public class ChunkLoader
 	{
 		private readonly Dictionary<ChunkData, AsyncOperationHandle<SceneInstance>> _loadedChunksMap = new();
 		private readonly Dictionary<ChunkData, AsyncOperationHandle<GameObject>> _loadedImpostorsMap = new();
