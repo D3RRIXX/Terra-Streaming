@@ -12,114 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27472d75229942909ded0e843460992b, type: 3}
   m_Name: SampleScene_WorldData
   m_EditorClassIdentifier: 
-  _chunkData:
-  - rid: 8189620166833209510
-  - rid: 8189620166833209511
-  - rid: 8189620166833209512
-  - rid: 8189620166833209513
+  _chunkData: []
   _loadRange: 0
+  GridSettings:
+    CellSize: 0
+    GridSize: {x: 0, y: 0}
+    CenterOffset: {x: 0, y: 0, z: 0}
   references:
     version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
-    - rid: 8189620166833209510
-      type: {class: ChunkData, ns: TerraStreamer.Data, asm: TerraStreamer}
-      data:
-        _name: SampleScene_(0, 0)
-        _leftNeighbour:
-          rid: -2
-        _rightNeighbour:
-          rid: 8189620166833209512
-        _topNeighbour:
-          rid: 8189620166833209511
-        _bottomNeighbour:
-          rid: -2
-        ImpostorPrefab:
-          m_AssetGUID: 
-          m_SubObjectName: 
-          m_SubObjectType: 
-          m_EditorAssetChanged: 0
-        SceneRef:
-          m_AssetGUID: 93121fb6f4f77fe46b7ec478dab96d01
-          m_SubObjectName: 
-          m_SubObjectType: 
-          m_EditorAssetChanged: 0
-        Bounds:
-          m_Center: {x: 0, y: 0, z: 0}
-          m_Extent: {x: 0, y: 0, z: 0}
-    - rid: 8189620166833209511
-      type: {class: ChunkData, ns: TerraStreamer.Data, asm: TerraStreamer}
-      data:
-        _name: SampleScene_(0, 1)
-        _leftNeighbour:
-          rid: -2
-        _rightNeighbour:
-          rid: 8189620166833209513
-        _topNeighbour:
-          rid: -2
-        _bottomNeighbour:
-          rid: 8189620166833209510
-        ImpostorPrefab:
-          m_AssetGUID: 
-          m_SubObjectName: 
-          m_SubObjectType: 
-          m_EditorAssetChanged: 0
-        SceneRef:
-          m_AssetGUID: eb26a259f66e5704098cbce0fb97378e
-          m_SubObjectName: 
-          m_SubObjectType: 
-          m_EditorAssetChanged: 0
-        Bounds:
-          m_Center: {x: 0, y: 0, z: 0}
-          m_Extent: {x: 0, y: 0, z: 0}
-    - rid: 8189620166833209512
-      type: {class: ChunkData, ns: TerraStreamer.Data, asm: TerraStreamer}
-      data:
-        _name: SampleScene_(1, 0)
-        _leftNeighbour:
-          rid: 8189620166833209510
-        _rightNeighbour:
-          rid: -2
-        _topNeighbour:
-          rid: 8189620166833209513
-        _bottomNeighbour:
-          rid: -2
-        ImpostorPrefab:
-          m_AssetGUID: 
-          m_SubObjectName: 
-          m_SubObjectType: 
-          m_EditorAssetChanged: 0
-        SceneRef:
-          m_AssetGUID: fe7ce656c7c59a942aecca3c93a069ef
-          m_SubObjectName: 
-          m_SubObjectType: 
-          m_EditorAssetChanged: 0
-        Bounds:
-          m_Center: {x: 0, y: 0, z: 0}
-          m_Extent: {x: 0, y: 0, z: 0}
-    - rid: 8189620166833209513
-      type: {class: ChunkData, ns: TerraStreamer.Data, asm: TerraStreamer}
-      data:
-        _name: SampleScene_(1, 1)
-        _leftNeighbour:
-          rid: 8189620166833209511
-        _rightNeighbour:
-          rid: -2
-        _topNeighbour:
-          rid: -2
-        _bottomNeighbour:
-          rid: 8189620166833209512
-        ImpostorPrefab:
-          m_AssetGUID: 
-          m_SubObjectName: 
-          m_SubObjectType: 
-          m_EditorAssetChanged: 0
-        SceneRef:
-          m_AssetGUID: 898dafdb022ec2f468a48968a9840e7d
-          m_SubObjectName: 
-          m_SubObjectType: 
-          m_EditorAssetChanged: 0
-        Bounds:
-          m_Center: {x: 0, y: 0, z: 0}
-          m_Extent: {x: 0, y: 0, z: 0}
+    RefIds: []
