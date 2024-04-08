@@ -4,9 +4,9 @@ using UnityEngine;
 namespace TerraStreaming.Editor
 {
 	[System.Serializable]
-	public struct ObjectGroupingSettings
+	public class ObjectGroupingSettings
 	{
-		public List<Transform> Parents;
-		public List<Transform> IndividualObjects;
+		public List<Transform> Parents = new();
+		public List<Transform> IndividualObjects = new();
 	}
 }
