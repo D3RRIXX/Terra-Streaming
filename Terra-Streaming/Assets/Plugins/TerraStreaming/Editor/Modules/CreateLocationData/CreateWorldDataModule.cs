@@ -158,6 +158,8 @@ namespace TerraStreaming.Modules.CreateLocationData
 			}
 		}
 
+		// TODO: Refactor this to properly get existing world data
+		// Probably search the folder for first WorldData asset
 		private static WorldData GetWorldDataAsset(string parentFolder, string worldName) =>
 			Utils.GetOrCreateAsset(parentFolder, $"{worldName}_WorldData.asset", CreateInstance<WorldData>);
 

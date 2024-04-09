@@ -1,24 +1,16 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
-using UnityEngine.SceneManagement;
-using Debug = UnityEngine.Debug;
-
-#if UNITY_EDITOR
-using System.Collections.Generic;
 using TerraStreaming.Data;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-#endif
+using UnityEngine.SceneManagement;
 
 namespace TerraStreaming
 {
 	[InitializeOnLoad]
 	public static class WorldGizmoDrawer
 	{
-#if UNITY_EDITOR
-		private static readonly List<StreamingSource> STREAMING_SOURCES = new();
 		private static StreamingManager _streamingManager;
 
 		static WorldGizmoDrawer()
@@ -45,10 +37,22 @@ namespace TerraStreaming
 			GridSettings gridSettings = worldData.GridSettings;
 			var size = new Vector3(gridSettings.CellSize, 0f, gridSettings.CellSize);
 
+			if (_streamingManager.StreamingSources?.Count == 0)
+			{
+				Handles.color = Color.grey;
+				foreach ((int x, int y) in gridSettings.EnumerateGrid())
+				{
+					var cellPosition = GridUtils.CellPosition(gridSettings, x, y);
+					Handles.DrawWireCube(cellPosition, size);
+				}
+
+				return;
+			}
+
 			var cells =
 				from coords in gridSettings.EnumerateGrid()
 				let cellPosition = GridUtils.CellPosition(gridSettings, coords.x, coords.y)
-				group cellPosition by STREAMING_SOURCES.Select(x => GetState(cellPosition, x)).Max()
+				group cellPosition by _streamingManager.StreamingSources.Select(x => GetState(cellPosition, x)).Max()
 				into cellGroup
 				orderby cellGroup.Key
 				select cellGroup;
@@ -98,7 +102,7 @@ namespace TerraStreaming
 
 		private static void DrawStreamingSources(WorldData worldData)
 		{
-			foreach (StreamingSource streamingSource in STREAMING_SOURCES)
+			foreach (StreamingSource streamingSource in _streamingManager.StreamingSources)
 			{
 				DrawArc(streamingSource, worldData.LoadRange, GetGizmoColor(ChunkState.Regular));
 				DrawArc(streamingSource, worldData.ImpostorLoadRange, GetGizmoColor(ChunkState.Impostor));
@@ -122,19 +126,6 @@ namespace TerraStreaming
 		{
 			StreamingManager streamingManager = currentScene.GetRootGameObjects().SelectMany(x => x.GetComponentsInChildren<StreamingManager>()).FirstOrDefault();
 			_streamingManager = streamingManager;
-		}
-#endif
-
-		[Conditional("UNITY_EDITOR")]
-		public static void RegisterStreamingSource(StreamingSource streamingSource)
-		{
-			STREAMING_SOURCES.Add(streamingSource);
-		}
-
-		[Conditional("UNITY_EDITOR")]
-		public static void UnregisterStreamingSource(StreamingSource streamingSource)
-		{
-			STREAMING_SOURCES.Remove(streamingSource);
 		}
 	}
 }

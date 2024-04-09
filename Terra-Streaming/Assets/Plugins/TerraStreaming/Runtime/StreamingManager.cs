@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace TerraStreaming
 {
+	[ExecuteAlways]
 	public class StreamingManager : MonoBehaviour
 	{
 		[SerializeField] private WorldData _worldData;
@@ -20,11 +21,24 @@ namespace TerraStreaming
 		private NativeArray<Bounds> _bounds;
 		private NativeArray<ChunkState> _resultArray;
 		private JobHandle _handle;
-		
+
+		public static StreamingManager Instance { get; private set; }
+
 		public WorldData WorldData => _worldData;
+		public IReadOnlyList<StreamingSource> StreamingSources => _streamingSources;
 
 		private void Awake()
 		{
+			if (Instance == null)
+				Instance = this;
+			else
+				DestroyImmediate(gameObject);
+
+#if UNITY_EDITOR
+			if (!Application.isPlaying)
+				return;
+#endif
+			
 			var chunkDataList = _worldData.ChunkDataList;
 
 			_bounds = new NativeArray<Bounds>(chunkDataList.Select(x => x.Bounds).ToArray(), Allocator.Persistent);
@@ -41,11 +55,17 @@ namespace TerraStreaming
 
 		private void Update()
 		{
+			if (!Application.isPlaying)
+				return;
+			
 			UpdateWithJobs();
 		}
 
 		private void LateUpdate()
 		{
+			if (!Application.isPlaying)
+				return;
+			
 			_handle.Complete();
 
 			for (int i = 0; i < _resultArray.Length; i++)
@@ -53,6 +73,16 @@ namespace TerraStreaming
 				ChunkData chunkData = _worldData.ChunkDataList[i];
 				_chunkLoader.UpdateChunk(chunkData, _resultArray[i]);
 			}
+		}
+
+		public void RegisterStreamingSource(StreamingSource streamingSource)
+		{
+			_streamingSources.Add(streamingSource);
+		}
+
+		public void UnregisterStreamingSource(StreamingSource streamingSource)
+		{
+			_streamingSources.Remove(streamingSource);
 		}
 
 		private void UpdateWithJobs()
@@ -68,6 +98,5 @@ namespace TerraStreaming
 
 			_handle = handle;
 		}
-
 	}
 }

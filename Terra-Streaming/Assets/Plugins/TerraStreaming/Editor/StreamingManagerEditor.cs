@@ -1,7 +1,5 @@
 ﻿using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace TerraStreaming
 {
@@ -17,16 +15,23 @@ namespace TerraStreaming
 			_worldData = new SerializedObject(_worldDataProperty.objectReferenceValue);
 		}
 
+		private void OnDisable()
+		{
+			_worldData.Dispose();
+			_worldData = null;
+		}
+
 		public override void OnInspectorGUI()
 		{
 			serializedObject.Update();
 			_worldData.Update();
 
 			GUI.enabled = false;
-			EditorGUILayout.PropertyField(_worldDataProperty);
-			GUI.enabled = true;
 			
+			EditorGUILayout.PropertyField(_worldDataProperty);
 			EditorGUILayout.PropertyField(serializedObject.FindProperty("_streamingSources"));
+			
+			GUI.enabled = true;
 
 			EditorGUILayout.LabelField("Load Ranges", EditorStyles.boldLabel);
 			

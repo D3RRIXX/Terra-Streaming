@@ -6,17 +6,38 @@ namespace TerraStreaming
 	public class StreamingSource : MonoBehaviour
 	{
 		[SerializeField] private Vector3 _centerOffset;
+		[SerializeField] private bool _autoRegister = true;
+		[SerializeField, HideInInspector] private bool _registered;
 
 		public Vector3 Position => transform.position + _centerOffset;
 
 		private void OnEnable()
 		{
-			WorldGizmoDrawer.RegisterStreamingSource(this);
+			if (_autoRegister)
+				RegisterSelf();
 		}
 
-		private void OnDestroy()
+		private void OnDisable()
 		{
-			WorldGizmoDrawer.UnregisterStreamingSource(this);
+			UnregisterSelf();
+		}
+
+		public void RegisterSelf()
+		{
+			if (_registered)
+				return;
+			
+			StreamingManager.Instance.RegisterStreamingSource(this);
+			_registered = true;
+		}
+
+		public void UnregisterSelf()
+		{
+			if (!_registered)
+				return;
+			
+			StreamingManager.Instance.UnregisterStreamingSource(this);
+			_registered = false;
 		}
 	}
 }

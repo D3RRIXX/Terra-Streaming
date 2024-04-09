@@ -11,7 +11,7 @@ namespace TerraStreaming
 	public class TerraEditorWindow : EditorWindow
 	{
 		private TerraModuleBase[] _modules;
-		private UnityEditor.Editor _activeEditor;
+		private Editor _activeEditor;
 
 		private int _selectedTab;
 		private Vector2 _scrollPos;
@@ -43,6 +43,7 @@ namespace TerraStreaming
 
 		private void OnSceneGUI(SceneView obj)
 		{
+			// TODO: Replace this with some shared WorldData context for every scene
 			Modules[0].OnSceneGUI(obj);
 		}
 
@@ -127,7 +128,7 @@ namespace TerraStreaming
 
 		private void CreateEditor(int i)
 		{
-			_activeEditor = UnityEditor.Editor.CreateEditor(Modules[i]);
+			_activeEditor = Editor.CreateEditor(Modules[i]);
 		}
 	}
 }
