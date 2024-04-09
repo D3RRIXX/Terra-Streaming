@@ -21,29 +21,31 @@ namespace TerraStreaming
 			GetStreamingManager(SceneManager.GetActiveScene());
 		}
 
-		private static void OnSceneGUI(SceneView obj)
+		public static bool GizmosEnabled { get; set; }
+
+		private static void OnSceneGUI(SceneView sceneView)
 		{
-			if (!_streamingManager)
+			if (!GizmosEnabled || !_streamingManager)
 				return;
 
 			WorldData worldData = _streamingManager.WorldData;
 
 			DrawStreamingSources(worldData);
-			DrawChunks(worldData);
+			DrawChunks(worldData, sceneView);
 		}
 
-		private static void DrawChunks(WorldData worldData)
+		private static void DrawChunks(WorldData worldData, SceneView sceneView)
 		{
 			GridSettings gridSettings = worldData.GridSettings;
 			var size = new Vector3(gridSettings.CellSize, 0f, gridSettings.CellSize);
 
 			if (_streamingManager.StreamingSources?.Count == 0)
 			{
-				Handles.color = Color.grey;
+				using var drawingScope = new Handles.DrawingScope(Color.gray);
 				foreach ((int x, int y) in gridSettings.EnumerateGrid())
 				{
 					var cellPosition = GridUtils.CellPosition(gridSettings, x, y);
-					Handles.DrawWireCube(cellPosition, size);
+					DrawChunk(cellPosition);
 				}
 
 				return;
@@ -59,15 +61,35 @@ namespace TerraStreaming
 
 			foreach (IGrouping<ChunkState, Vector3> grouping in cells.AsParallel())
 			{
-				Handles.color = GetGizmoColor(grouping.Key);
+				using var drawingScope = new Handles.DrawingScope(GetGizmoColor(grouping.Key));
 
 				foreach (Vector3 cellPosition in grouping)
 				{
-					Handles.DrawWireCube(cellPosition, size);
+					DrawChunk(cellPosition);
 				}
 			}
 
 			return;
+
+			void DrawChunk(Vector3 cellPosition)
+			{
+				Handles.DrawWireCube(cellPosition, size);
+
+				DrawChunkToggle(cellPosition);
+			}
+
+			void DrawChunkToggle(Vector3 cellPosition)
+			{
+				Handles.BeginGUI();
+
+				Vector3 guiPos = sceneView.camera.WorldToScreenPoint(cellPosition);
+				guiPos.y = sceneView.camera.pixelRect.height - guiPos.y;
+					
+				var rect = new Rect(guiPos.x, guiPos.y, 0f, 0f);
+				EditorGUI.Toggle(rect, false);
+
+				Handles.EndGUI();
+			}
 
 			ChunkState GetState(Vector3 cellPos, StreamingSource streamingSource)
 			{
@@ -93,7 +115,7 @@ namespace TerraStreaming
 		{
 			return chunkState switch
 			{
-				ChunkState.None => Color.grey,
+				ChunkState.None => Color.gray,
 				ChunkState.Impostor => Color.yellow,
 				ChunkState.Regular => Color.green,
 				_ => throw new ArgumentOutOfRangeException()
