@@ -48,12 +48,12 @@ namespace TerraStreaming
 			var cells =
 				from coords in gridSettings.EnumerateGrid()
 				let cellPosition = GridUtils.CellPosition(gridSettings, coords.x, coords.y)
-				group cellPosition by GetState(cellPosition, STREAMING_SOURCES[0])
+				group cellPosition by STREAMING_SOURCES.Select(x => GetState(cellPosition, x)).Max()
 				into cellGroup
 				orderby cellGroup.Key
 				select cellGroup;
 
-			foreach (IGrouping<ChunkState, Vector3> grouping in cells)
+			foreach (IGrouping<ChunkState, Vector3> grouping in cells.AsParallel())
 			{
 				Handles.color = GetGizmoColor(grouping.Key);
 
@@ -83,25 +83,25 @@ namespace TerraStreaming
 
 				return ChunkState.None;
 			}
+		}
 
-			Color GetGizmoColor(ChunkState chunkState)
+		private static Color GetGizmoColor(ChunkState chunkState)
+		{
+			return chunkState switch
 			{
-				return chunkState switch
-				{
-					ChunkState.None => Color.grey,
-					ChunkState.Impostor => Color.yellow,
-					ChunkState.Regular => Color.green,
-					_ => throw new ArgumentOutOfRangeException()
-				};
-			}
+				ChunkState.None => Color.grey,
+				ChunkState.Impostor => Color.yellow,
+				ChunkState.Regular => Color.green,
+				_ => throw new ArgumentOutOfRangeException()
+			};
 		}
 
 		private static void DrawStreamingSources(WorldData worldData)
 		{
 			foreach (StreamingSource streamingSource in STREAMING_SOURCES)
 			{
-				DrawArc(streamingSource, worldData.LoadRange, Color.white);
-				DrawArc(streamingSource, worldData.ImpostorLoadRange, Color.yellow);
+				DrawArc(streamingSource, worldData.LoadRange, GetGizmoColor(ChunkState.Regular));
+				DrawArc(streamingSource, worldData.ImpostorLoadRange, GetGizmoColor(ChunkState.Impostor));
 			}
 
 			return;
