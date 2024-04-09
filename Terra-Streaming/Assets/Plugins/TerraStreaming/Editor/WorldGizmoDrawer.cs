@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using TerraStreaming.Data;
 using UnityEditor;
@@ -12,7 +13,7 @@ namespace TerraStreaming
 	public static class WorldGizmoDrawer
 	{
 		private static StreamingManager _streamingManager;
-		private static bool _testBool;
+		private static bool[][] _chunkStates;
 
 		static WorldGizmoDrawer()
 		{
@@ -35,10 +36,15 @@ namespace TerraStreaming
 			DrawChunks(worldData, sceneView);
 		}
 
+		private struct DrawChunkData
+		{
+			public int X, Y;
+			public Vector3 CenterPos;
+		}
+
 		private static void DrawChunks(WorldData worldData, SceneView sceneView)
 		{
 			GridSettings gridSettings = worldData.GridSettings;
-			var size = new Vector3(gridSettings.CellSize, 0f, gridSettings.CellSize);
 
 			if (_streamingManager.StreamingSources?.Count == 0)
 			{
@@ -46,51 +52,31 @@ namespace TerraStreaming
 				foreach ((int x, int y) in gridSettings.EnumerateGrid())
 				{
 					var cellPosition = GridUtils.CellPosition(gridSettings, x, y);
-					DrawChunk(cellPosition);
+					DrawChunk(sceneView, new DrawChunkData { CenterPos = cellPosition, X = x, Y = y });
 				}
-
 				return;
 			}
 
 			var cells =
 				from coords in gridSettings.EnumerateGrid()
 				let cellPosition = GridUtils.CellPosition(gridSettings, coords.x, coords.y)
-				group cellPosition by _streamingManager.StreamingSources.Select(x => GetState(cellPosition, x)).Max()
+				let drawData = new DrawChunkData { X = coords.x, Y = coords.y, CenterPos = cellPosition }
+				group drawData by _streamingManager.StreamingSources.Select(x => GetState(cellPosition, x)).Max()
 				into cellGroup
 				orderby cellGroup.Key
 				select cellGroup;
 
-			foreach (IGrouping<ChunkState, Vector3> grouping in cells.AsParallel())
+			foreach (IGrouping<ChunkState, DrawChunkData> grouping in cells.AsParallel())
 			{
 				using var drawingScope = new Handles.DrawingScope(GetGizmoColor(grouping.Key));
 
-				foreach (Vector3 cellPosition in grouping)
+				foreach (DrawChunkData drawChunkData in grouping)
 				{
-					DrawChunk(cellPosition);
+					DrawChunk(sceneView, drawChunkData);
 				}
 			}
 
 			return;
-
-			void DrawChunk(Vector3 cellPosition)
-			{
-				Handles.DrawWireCube(cellPosition, size);
-
-				DrawChunkToggle(cellPosition);
-			}
-
-			void DrawChunkToggle(Vector3 cellPosition)
-			{
-				Handles.BeginGUI();
-
-				Vector3 guiPos = sceneView.camera.WorldToScreenPoint(cellPosition);
-				guiPos.y = sceneView.camera.pixelRect.height - guiPos.y;
-					
-				var rect = new Rect(guiPos.x, guiPos.y, 10f, 10f);
-				_testBool = EditorGUI.Toggle(rect, _testBool);
-
-				Handles.EndGUI();
-			}
 
 			ChunkState GetState(Vector3 cellPos, StreamingSource streamingSource)
 			{
@@ -110,6 +96,34 @@ namespace TerraStreaming
 
 				return ChunkState.None;
 			}
+		}
+
+		private static void DrawChunk(SceneView sceneView, in DrawChunkData data)
+		{
+			var gridSettings = _streamingManager.WorldData.GridSettings;
+			var size = new Vector3(gridSettings.CellSize, 0f, gridSettings.CellSize);
+			Handles.DrawWireCube(data.CenterPos, size);
+
+			DrawChunkToggle(sceneView, data);
+		}
+
+		private static void DrawChunkToggle(SceneView sceneView, in DrawChunkData data)
+		{
+			Handles.BeginGUI();
+
+			Vector3 guiPos = sceneView.camera.WorldToScreenPoint(data.CenterPos);
+			guiPos.y = sceneView.camera.pixelRect.height - guiPos.y;
+
+			var rect = new Rect(guiPos.x, guiPos.y, 15f, 15f);
+			bool toggleVal = EditorGUI.Toggle(rect, _chunkStates[data.X][data.Y]);
+
+			if (toggleVal != _chunkStates[data.X][data.Y])
+			{
+				_chunkStates[data.X][data.Y] = toggleVal;
+				_streamingManager.SetChunkEnabled(data.X, data.Y, value: toggleVal);
+			}
+
+			Handles.EndGUI();
 		}
 
 		private static Color GetGizmoColor(ChunkState chunkState)
@@ -148,6 +162,15 @@ namespace TerraStreaming
 		private static void GetStreamingManager(Scene currentScene)
 		{
 			_streamingManager = StreamingManager.Instance;
+			if (_streamingManager != null && _streamingManager.WorldData != null)
+			{
+				Vector2Int gridSize = _streamingManager.WorldData.GridSettings.GridSize;
+				_chunkStates = new bool[gridSize.x][];
+				for (int x = 0; x < _chunkStates.Length; x++)
+				{
+					_chunkStates[x] = new bool[gridSize.y];
+				}
+			}
 		}
 	}
 }
