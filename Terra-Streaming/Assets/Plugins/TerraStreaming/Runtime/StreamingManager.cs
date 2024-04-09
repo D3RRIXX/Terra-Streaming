@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace TerraStreaming
 {
-	public class StreamingManager : MonoBehaviour
+	public partial class StreamingManager : MonoBehaviour
 	{
 		[SerializeField] private WorldData _worldData;
 
@@ -108,5 +108,6 @@ namespace TerraStreaming
 
 			_handle = handle;
 		}
+
 	}
 }

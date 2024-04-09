@@ -12,6 +12,7 @@ namespace TerraStreaming
 	public static class WorldGizmoDrawer
 	{
 		private static StreamingManager _streamingManager;
+		private static bool _testBool;
 
 		static WorldGizmoDrawer()
 		{
@@ -85,8 +86,8 @@ namespace TerraStreaming
 				Vector3 guiPos = sceneView.camera.WorldToScreenPoint(cellPosition);
 				guiPos.y = sceneView.camera.pixelRect.height - guiPos.y;
 					
-				var rect = new Rect(guiPos.x, guiPos.y, 0f, 0f);
-				EditorGUI.Toggle(rect, false);
+				var rect = new Rect(guiPos.x, guiPos.y, 10f, 10f);
+				_testBool = EditorGUI.Toggle(rect, _testBool);
 
 				Handles.EndGUI();
 			}
