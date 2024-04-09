@@ -41,21 +41,6 @@ namespace TerraStreaming.Utilities
 			return new Vector2Int(Mathf.FloorToInt(position.x / gridSize), Mathf.FloorToInt(position.z / gridSize));
 		}
 		
-		public static Vector3 CellPosition(GridSettings gridSettings, int x, int y)
-		{
-			Vector3 centerOffset = CalculateCenter(gridSettings);
-			Vector3 pos = new(x * gridSettings.CellSize, 0f, y * gridSettings.CellSize);
-
-			return pos + centerOffset + gridSettings.CenterOffset;
-		}
-
-		public static Vector3 CalculateCenter(GridSettings gridSettings)
-		{
-			Vector3 centerOffset = Vector3.one * (gridSettings.CellSize / 2f);
-			centerOffset.y = 0f;
-			return centerOffset;
-		}
-
 		public static bool AssetExists(string path, out Object asset)
 		{
 			asset = AssetDatabase.LoadMainAssetAtPath(path);

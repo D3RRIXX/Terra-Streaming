@@ -97,17 +97,6 @@ namespace TerraStreaming.Modules.CreateLocationData
 			return _worldData;
 		}
 
-		public override void OnSceneGUI(SceneView sceneView)
-		{
-			var size = new Vector3(_gridSettings.CellSize, 0f, _gridSettings.CellSize);
-
-			for (int x = 0; x < _gridSettings.GridSize.x; x++)
-			for (int y = 0; y < _gridSettings.GridSize.y; y++)
-			{
-				Handles.DrawWireCube(Utils.CellPosition(_gridSettings, x, y), size);
-			}
-		}
-
 		private static void UpdateProgressBar(int progress, int length)
 		{
 			EditorUtility.DisplayProgressBar("Create Terrain Scenes", $"Creating Scene (Step {progress + 1}/{length})",

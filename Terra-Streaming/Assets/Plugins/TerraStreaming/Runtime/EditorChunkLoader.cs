@@ -16,6 +16,8 @@ namespace TerraStreaming
 
 		private List<Scene> _openScenes;
 
+		public WorldData WorldData => _worldData;
+
 		private void LoadAllChunks()
 		{
 			_openScenes = _worldData.ChunkDataList

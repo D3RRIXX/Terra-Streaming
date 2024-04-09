@@ -3,7 +3,6 @@ using System.Linq;
 using TerraStreaming.Data;
 using Unity.Collections;
 using Unity.Jobs;
-using UnityEditor;
 using UnityEngine;
 
 namespace TerraStreaming
@@ -21,6 +20,8 @@ namespace TerraStreaming
 		private NativeArray<Bounds> _bounds;
 		private NativeArray<ChunkState> _resultArray;
 		private JobHandle _handle;
+		
+		public WorldData WorldData => _worldData;
 
 		private void Awake()
 		{
@@ -68,21 +69,5 @@ namespace TerraStreaming
 			_handle = handle;
 		}
 
-		private void OnDrawGizmos()
-		{
-			foreach (StreamingSource streamingSource in _streamingSources)
-			{
-				DrawArc(streamingSource, _worldData.LoadRange, Color.white);
-				DrawArc(streamingSource, _worldData.ImpostorLoadRange, Color.yellow);
-			}
-
-			return;
-
-			void DrawArc(StreamingSource streamingSource, float radius, Color color)
-			{
-				Handles.color = color;
-				Handles.DrawWireArc(streamingSource.Position, Vector3.up, Vector3.forward, 360f, radius);
-			}
-		}
 	}
 }
