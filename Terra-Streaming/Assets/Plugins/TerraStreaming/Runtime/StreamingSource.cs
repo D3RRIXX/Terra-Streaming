@@ -7,7 +7,8 @@ namespace TerraStreaming
 	{
 		[SerializeField] private Vector3 _centerOffset;
 		[SerializeField] private bool _autoRegister = true;
-		[SerializeField, HideInInspector] private bool _registered;
+		
+		private bool _registered;
 
 		public Vector3 Position => transform.position + _centerOffset;
 

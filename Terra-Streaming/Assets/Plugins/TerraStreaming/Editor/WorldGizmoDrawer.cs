@@ -124,8 +124,7 @@ namespace TerraStreaming
 
 		private static void GetStreamingManager(Scene currentScene)
 		{
-			StreamingManager streamingManager = currentScene.GetRootGameObjects().SelectMany(x => x.GetComponentsInChildren<StreamingManager>()).FirstOrDefault();
-			_streamingManager = streamingManager;
+			_streamingManager = StreamingManager.Instance;
 		}
 	}
 }

@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace TerraStreaming
 {
-	[ExecuteAlways]
 	public class StreamingManager : MonoBehaviour
 	{
 		[SerializeField] private WorldData _worldData;
@@ -22,7 +21,20 @@ namespace TerraStreaming
 		private NativeArray<ChunkState> _resultArray;
 		private JobHandle _handle;
 
-		public static StreamingManager Instance { get; private set; }
+		private static StreamingManager instance;
+
+		public static StreamingManager Instance
+		{
+			get
+			{
+#if UNITY_EDITOR
+				if (instance == null)
+					instance = FindObjectOfType<StreamingManager>();
+#endif
+				return instance;
+			}
+			private set => instance = value;
+		}
 
 		public WorldData WorldData => _worldData;
 		public IReadOnlyList<StreamingSource> StreamingSources => _streamingSources;
@@ -34,11 +46,6 @@ namespace TerraStreaming
 			else
 				DestroyImmediate(gameObject);
 
-#if UNITY_EDITOR
-			if (!Application.isPlaying)
-				return;
-#endif
-			
 			var chunkDataList = _worldData.ChunkDataList;
 
 			_bounds = new NativeArray<Bounds>(chunkDataList.Select(x => x.Bounds).ToArray(), Allocator.Persistent);
@@ -57,7 +64,7 @@ namespace TerraStreaming
 		{
 			if (!Application.isPlaying)
 				return;
-			
+
 			UpdateWithJobs();
 		}
 
@@ -65,7 +72,7 @@ namespace TerraStreaming
 		{
 			if (!Application.isPlaying)
 				return;
-			
+
 			_handle.Complete();
 
 			for (int i = 0; i < _resultArray.Length; i++)
@@ -77,6 +84,9 @@ namespace TerraStreaming
 
 		public void RegisterStreamingSource(StreamingSource streamingSource)
 		{
+			if (_streamingSources.Contains(streamingSource))
+				return;
+			
 			_streamingSources.Add(streamingSource);
 		}
 
