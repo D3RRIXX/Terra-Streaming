@@ -53,7 +53,7 @@ namespace TerraStreaming.Utilities
 				throw new InvalidOperationException();
 
 			string assetPath = AssetDatabase.GetAssetPath(worldData);
-			return $"{SceneUtils.GetParentFolder(assetPath)}/{chunkData.Name}";
+			return $"{GetParentFolder(assetPath)}/{chunkData.Name}";
 		}
 
 		public static void MoveObjectToScene(Transform transform, in Scene scene)
@@ -63,6 +63,15 @@ namespace TerraStreaming.Utilities
 			Undo.SetCurrentGroupName(actionName);
 			Undo.SetTransformParent(transform, newParent: null, actionName);
 			Undo.MoveGameObjectToScene(transform.gameObject, scene, actionName);
+		}
+
+		public static string GetParentFolder(string path)
+		{
+			var targetPath = path.Split('/').SkipLast(1);
+			using var builderScope = new StringBuilderScope();
+			builderScope.Builder.AppendJoin('/', targetPath);
+
+			return builderScope.Builder.ToString();
 		}
 	}
 }

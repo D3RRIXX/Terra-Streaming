@@ -20,8 +20,6 @@ namespace TerraStreaming.Modules.CreateLocationData
 		[SerializeField] private GridSettings _gridSettings;
 		[SerializeField] private ObjectGroupingSettings _groupingSettings;
 
-		private WorldData _worldData;
-
 		public override string DisplayName => "World Settings";
 		public GridSettings GridSettings => _gridSettings;
 
@@ -29,15 +27,16 @@ namespace TerraStreaming.Modules.CreateLocationData
 
 		public WorldData SetupWorldData()
 		{
+			WorldData worldData;
 			try
 			{
 				Vector2Int gridSize = _gridSettings.GridSize;
 				Scene activeScene = SceneManager.GetActiveScene();
 				int length = gridSize.x * gridSize.y;
 
-				string parentFolder = Utils.GetOrCreateFolder(SceneUtils.GetParentFolder(activeScene.path), activeScene.name);
-				_worldData = GetWorldDataAsset(parentFolder, GetLocationName());
-				_worldData.GridSettings = _gridSettings;
+				string parentFolder = Utils.GetOrCreateFolder(Utils.GetParentFolder(activeScene.path), activeScene.name);
+				worldData = GetWorldDataAsset(GetLocationName());
+				worldData.GridSettings = _gridSettings;
 
 				Dictionary<Vector2Int, List<Transform>> objectMap = GetAllObjectsToSort(_groupingSettings).ToDictionary(x => x.Key, x => x.Objects);
 
@@ -76,7 +75,7 @@ namespace TerraStreaming.Modules.CreateLocationData
 						SceneManager.SetActiveScene(activeScene);
 					}
 
-					_worldData.AddChunkData(chunkData);
+					worldData.AddChunkData(chunkData);
 					progress++;
 				}
 
@@ -85,7 +84,7 @@ namespace TerraStreaming.Modules.CreateLocationData
 				// TODO: Restore
 				// _worldData.UpdateChunkBounds();
 
-				EditorUtility.SetDirty(_worldData);
+				EditorUtility.SetDirty(worldData);
 				AssetDatabase.SaveAssets();
 			}
 			finally
@@ -94,7 +93,7 @@ namespace TerraStreaming.Modules.CreateLocationData
 				EditorUtility.ClearProgressBar();
 			}
 
-			return _worldData;
+			return worldData;
 		}
 
 		private static void UpdateProgressBar(int progress, int length)
@@ -160,8 +159,10 @@ namespace TerraStreaming.Modules.CreateLocationData
 
 		// TODO: Refactor this to properly get existing world data
 		// Probably search the folder for first WorldData asset
-		private static WorldData GetWorldDataAsset(string parentFolder, string worldName) =>
-			Utils.GetOrCreateAsset(parentFolder, $"{worldName}_WorldData.asset", CreateInstance<WorldData>);
+		private static WorldData GetWorldDataAsset(string worldName)
+		{
+			return WordDataContext.WorldData ? WordDataContext.WorldData : WordDataContext.CreateTempWorldData(worldName);
+		}
 
 		private static AssetReference GetChunkSceneReference(string groupName, string scenePath)
 		{

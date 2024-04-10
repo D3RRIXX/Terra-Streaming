@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Linq;
+using TerraStreaming.Data;
+using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
 
 namespace TerraStreaming.Utilities
 {
 	public static class SceneUtils
 	{
-		public static string GetParentFolder(string path)
+		public static WorldData GetAssociatedWorldData(this Scene scene)
 		{
-			var targetPath = path.Split('/').SkipLast(1);
-			using var builderScope = new StringBuilderScope();
-			builderScope.Builder.AppendJoin('/', targetPath);
-
-			return builderScope.Builder.ToString();
+			string parentFolder = Utils.GetParentFolder(scene.path);
+			return AssetDatabase.LoadAllAssetsAtPath(parentFolder).OfType<WorldData>().SingleOrDefault();
 		}
 
 		public static OpenSceneScope GetOrCreateScene(string scenePath, bool closeOnDispose, OpenSceneMode openSceneMode = OpenSceneMode.Additive)
