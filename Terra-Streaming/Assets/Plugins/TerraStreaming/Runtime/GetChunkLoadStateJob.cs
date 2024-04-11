@@ -9,42 +9,44 @@ namespace TerraStreaming
 	[BurstCompile]
 	public struct GetChunkLoadStateJob : IJobParallelFor
 	{
-		[ReadOnly] private readonly Vector3 _playerPos;
+		[ReadOnly] private readonly NativeArray<float3> _streamingSourcePositions;
 		[ReadOnly] private NativeArray<Bounds> _boundsArray;
-		[ReadOnly] private readonly float _impostorLoadDistance;
-		[ReadOnly] private readonly float _regularLoadDistance;
-	
+		[ReadOnly] private readonly float _impostorLoadRange;
+		[ReadOnly] private readonly float _regularLoadRange;
+
 		private NativeArray<ChunkState> _outputArray;
 
-		public GetChunkLoadStateJob(Vector3 playerPos, NativeArray<Bounds> boundsArray, float impostorLoadDistance,
-			float regularLoadDistance, NativeArray<ChunkState> outputArray)
+		public GetChunkLoadStateJob(NativeArray<float3> streamingSourcePositions, NativeArray<Bounds> boundsArray, float impostorLoadRange,
+			float regularLoadRange, NativeArray<ChunkState> outputArray)
 		{
-			_playerPos = playerPos;
+			_streamingSourcePositions = streamingSourcePositions;
 			_boundsArray = boundsArray;
-			_impostorLoadDistance = impostorLoadDistance;
-			_regularLoadDistance = regularLoadDistance;
+			_impostorLoadRange = impostorLoadRange;
+			_regularLoadRange = regularLoadRange;
 			_outputArray = outputArray;
 		}
 
 		public void Execute(int index)
 		{
 			Bounds bounds = _boundsArray[index];
-			float3 closestPoint = bounds.ClosestPoint(_playerPos);
-			
-			float distance = math.distance(closestPoint, _playerPos);
 
-			if (distance <= _regularLoadDistance)
-				AssignIfGreater(index, ChunkState.Regular);
-			else if (distance <= _impostorLoadDistance)
-				AssignIfGreater(index, ChunkState.Impostor);
-			else
-				AssignIfGreater(index, ChunkState.None);
-		}
+			var highestState = ChunkState.None;
+			foreach (float3 playerPos in _streamingSourcePositions)
+			{
+				float3 closestPoint = bounds.ClosestPoint(playerPos);
 
-		private void AssignIfGreater(int index, ChunkState newState)
-		{
-			if (newState > _outputArray[index])
-				_outputArray[index] = newState;
+				float distance = math.distance(closestPoint, playerPos);
+
+				if (distance <= _regularLoadRange)
+					highestState = GetHighestState(ChunkState.Regular);
+				else if (distance <= _impostorLoadRange)
+					highestState = GetHighestState(ChunkState.Impostor);
+			}
+
+			_outputArray[index] = highestState;
+			return;
+
+			ChunkState GetHighestState(ChunkState newState) => highestState < newState ? newState : highestState;
 		}
 	}
 }

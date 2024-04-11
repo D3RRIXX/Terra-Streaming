@@ -3,6 +3,7 @@ using System.Linq;
 using TerraStreaming.Data;
 using Unity.Collections;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace TerraStreaming
@@ -12,13 +13,13 @@ namespace TerraStreaming
 		[SerializeField] private WorldData _worldData;
 
 		[SerializeField] private List<StreamingSource> _streamingSources = new();
-		[Header("Load Distances")]
-		[SerializeField] private float _regularLoadDistance = 100f;
-		[SerializeField] private float _impostorLoadDistance = 100f;
 
 		private ChunkLoader _chunkLoader;
+		
 		private NativeArray<Bounds> _bounds;
 		private NativeArray<ChunkState> _resultArray;
+		private NativeArray<float3> _streamingSourcesPositions;
+		
 		private JobHandle _handle;
 
 		private static StreamingManager instance;
@@ -28,7 +29,7 @@ namespace TerraStreaming
 			get
 			{
 #if UNITY_EDITOR
-				if (instance == null)
+				if (instance == null && !Application.isPlaying)
 					instance = FindObjectOfType<StreamingManager>();
 #endif
 				return instance;
@@ -48,7 +49,7 @@ namespace TerraStreaming
 
 			var chunkDataList = _worldData.ChunkDataList;
 
-			_bounds = new NativeArray<Bounds>(chunkDataList.Select(x => x.Bounds).ToArray(), Allocator.Persistent);
+			_bounds = new NativeArray<Bounds>(chunkDataList.Select(x => x.Coords).Select(_worldData.GetChunkBounds).ToArray(), Allocator.Persistent);
 			_resultArray = new NativeArray<ChunkState>(_bounds.Length, Allocator.Persistent);
 
 			_chunkLoader = new ChunkLoader();
@@ -62,18 +63,13 @@ namespace TerraStreaming
 
 		private void Update()
 		{
-			if (!Application.isPlaying)
-				return;
-
 			UpdateWithJobs();
 		}
 
 		private void LateUpdate()
 		{
-			if (!Application.isPlaying)
-				return;
-
 			_handle.Complete();
+			_streamingSourcesPositions.Dispose();
 
 			for (int i = 0; i < _resultArray.Length; i++)
 			{
@@ -86,7 +82,7 @@ namespace TerraStreaming
 		{
 			if (_streamingSources.Contains(streamingSource))
 				return;
-			
+
 			_streamingSources.Add(streamingSource);
 		}
 
@@ -99,15 +95,9 @@ namespace TerraStreaming
 		{
 			int length = _bounds.Length;
 
-			var handle = (JobHandle)default;
-			foreach (StreamingSource streamingSource in _streamingSources)
-			{
-				var job = new GetChunkLoadStateJob(streamingSource.Position, _bounds, _impostorLoadDistance, _regularLoadDistance, _resultArray);
-				handle = job.Schedule(length, 1, handle);
-			}
-
-			_handle = handle;
+			_streamingSourcesPositions = new NativeArray<float3>(_streamingSources.Select(x => (float3)x.Position).ToArray(), Allocator.TempJob);
+			var job = new GetChunkLoadStateJob(_streamingSourcesPositions, _bounds, _worldData.ImpostorLoadRange, _worldData.LoadRange, _resultArray);
+			_handle = job.Schedule(length, 1);
 		}
-
 	}
 }

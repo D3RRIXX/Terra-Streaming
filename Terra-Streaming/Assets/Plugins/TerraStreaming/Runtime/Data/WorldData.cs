@@ -31,5 +31,13 @@ namespace TerraStreaming.Data
 			}
 		}
 #endif
+		
+		public Bounds GetChunkBounds(Vector2Int coords)
+		{
+			Vector3 center = GridUtils.CellPosition(GridSettings, coords.x, coords.y);
+			Vector3 cellSize = Vector3.one * GridSettings.CellSize;
+			
+			return new Bounds(center, cellSize);
+		}
 	}
 }

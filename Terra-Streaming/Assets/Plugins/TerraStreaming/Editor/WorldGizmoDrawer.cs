@@ -18,6 +18,7 @@ namespace TerraStreaming
 		static WorldGizmoDrawer()
 		{
 			EditorSceneManager.activeSceneChangedInEditMode += OnActiveSceneChanged;
+			EditorApplication.playModeStateChanged += change => GetStreamingManager(SceneManager.GetActiveScene());
 			SceneView.duringSceneGui += OnSceneGUI;
 
 			GetStreamingManager(SceneManager.GetActiveScene());
@@ -54,6 +55,7 @@ namespace TerraStreaming
 					var cellPosition = GridUtils.CellPosition(gridSettings, x, y);
 					DrawChunk(sceneView, new DrawChunkData { CenterPos = cellPosition, X = x, Y = y });
 				}
+
 				return;
 			}
 
@@ -104,7 +106,8 @@ namespace TerraStreaming
 			var size = new Vector3(gridSettings.CellSize, 0f, gridSettings.CellSize);
 			Handles.DrawWireCube(data.CenterPos, size);
 
-			DrawChunkToggle(sceneView, data);
+			if (!Application.isPlaying)
+				DrawChunkToggle(sceneView, data);
 		}
 
 		private static void DrawChunkToggle(SceneView sceneView, in DrawChunkData data)

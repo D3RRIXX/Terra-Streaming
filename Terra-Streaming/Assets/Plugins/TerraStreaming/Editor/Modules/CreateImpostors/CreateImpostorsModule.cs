@@ -29,6 +29,9 @@ namespace TerraStreaming.Modules.CreateImpostors
 				string savePath = worldData.GetChunkRelatedFolder(chunkData);
 				CreatePrefab(chunkData, savePath);
 			}
+			
+			EditorUtility.SetDirty(worldData);
+			AssetDatabase.SaveAssets();
 		}
 
 		private void CreatePrefab(ChunkData chunkData, string savePath)
